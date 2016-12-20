@@ -1,0 +1,17 @@
+<extension>
+    <modules>
+        <module>
+            <id>Create Site Extension</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.magenta.custom-presets-share</sourcePackageRoot>
+                </customization>
+            </customizations>
+
+        </module>
+    </modules>
+</extension>

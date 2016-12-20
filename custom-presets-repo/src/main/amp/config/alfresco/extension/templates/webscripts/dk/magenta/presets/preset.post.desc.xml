@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Post Generated Preset Webscript</shortname>
+    <description>Posts the generated preset of a site</description>
+    <url>/custom-presets-repo/preset/{site}/{presetName}</url>
+    <authentication>user</authentication>
+    <format default="text"></format>
+</webscript>

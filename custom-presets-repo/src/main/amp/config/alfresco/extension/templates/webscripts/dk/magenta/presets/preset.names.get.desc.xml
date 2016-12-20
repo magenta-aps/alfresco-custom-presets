@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get Preset Name List Webscript</shortname>
+    <description>Gets a list of preset names</description>
+    <url>/custom-presets-repo/preset/names</url>
+    <authentication>user</authentication>
+    <format default="text"></format>
+</webscript>
