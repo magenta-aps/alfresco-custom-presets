@@ -6,6 +6,9 @@ import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
@@ -38,6 +41,7 @@ public class PostPreset extends DeclarativeWebScript {
     private ContentService contentService;
     private NodeService nodeService;
     private FileFolderService fileFolderService;
+    private AuthorityService authorityService;
     private NodeRef extensionPresetsFolder;
     private NodeRef folderSetupsFolder;
 
@@ -48,6 +52,9 @@ public class PostPreset extends DeclarativeWebScript {
         this.nodeService = nodeService;
     }
     public void setFileFolderService(FileFolderService fileFolderService) { this.fileFolderService = fileFolderService; }
+    public void setAuthorityService(AuthorityService authorityService) {
+        this.authorityService = authorityService;
+    }
 
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
@@ -59,6 +66,7 @@ public class PostPreset extends DeclarativeWebScript {
         String siteName = templateArgs.get("site");
         String presetName = templateArgs.get("presetName");
         String presetId = presetName.replace(' ', '-');
+        presetId = presetId.toLowerCase();
 
         // Find current site
         NodeRef siteNode = NodeExt.getNodeByPath("st:sites/cm:" + siteName);
@@ -88,7 +96,6 @@ public class PostPreset extends DeclarativeWebScript {
             Document presetDoc = docBuilder.newDocument();
             Element presetsElement = presetDoc.createElement("presets");
             Element presetElement = presetDoc.createElement("preset");
-            presetId = presetId.toLowerCase();
             presetElement.setAttribute("id", presetId);
             Element componentsElement = presetDoc.createElement("components");
             presetDoc.appendChild(presetsElement);
@@ -190,8 +197,26 @@ public class PostPreset extends DeclarativeWebScript {
                 }
             }
 
+            //Add authorities to presets
+            Element authoritiesElement = presetDoc.createElement("authorities");
+            presetElement.appendChild(authoritiesElement);
+
+            Element siteCollaboratorElement = GetMembersOfAuthority(presetDoc, siteName, SITE_COLLABORATOR);
+            Element siteConsumerElement = GetMembersOfAuthority(presetDoc, siteName, SITE_CONSUMER);
+            Element siteContributorElement = GetMembersOfAuthority(presetDoc, siteName, SITE_CONTRIBUTOR);
+            Element siteManagerElement = GetMembersOfAuthority(presetDoc, siteName, SITE_MANAGER);
+
+            if(siteCollaboratorElement != null)
+                authoritiesElement.appendChild(siteCollaboratorElement);
+            if(siteConsumerElement != null)
+                authoritiesElement.appendChild(siteConsumerElement);
+            if(siteContributorElement != null)
+                authoritiesElement.appendChild(siteContributorElement);
+            if(siteManagerElement != null)
+                authoritiesElement.appendChild(siteManagerElement);
+
             //Create new preset file
-            OutputStream presetInputStream = createNewPresetFile(extensionPresetsFolder, presetName);
+            OutputStream presetInputStream = createNewPresetFile(extensionPresetsFolder, presetName, presetId);
 
             // Write to new preset file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -230,11 +255,12 @@ public class PostPreset extends DeclarativeWebScript {
         }
     }
 
-    private OutputStream createNewPresetFile(NodeRef parent, String presetName)
+    private OutputStream createNewPresetFile(NodeRef parent, String presetName, String presetId)
     {
         String fileName = presetName + ".xml";
         Map<QName,Serializable> properties = new HashMap<QName,Serializable>();
         properties.put(PROP_NAME, fileName);
+        properties.put(PROP_TITLE, presetId);
         NodeRef presetNode = nodeService.createNode(parent, ASSOC_CONTAINS, QName.createQName(CONTENT_MODEL_1_0_URI, fileName), TYPE_CONTENT, properties).getChildRef();
         ContentWriter contentWriter = contentService.getWriter(presetNode, ContentModel.PROP_CONTENT, true);
         contentWriter.setMimetype(MimetypeMap.MIMETYPE_XML);
@@ -282,5 +308,25 @@ public class PostPreset extends DeclarativeWebScript {
             properties.put(PROP_NAME, FOLDER_FOLDER_SETUPS_NAME);
             folderSetupsFolder = nodeService.createNode(extensionPresetsFolder, ASSOC_CONTAINS, FOLDER_FOLDER_SETUPS_QNAME, TYPE_FOLDER, properties).getChildRef();
         }
+    }
+    private Element GetMembersOfAuthority(Document document, String siteName, String authorityType)
+    {
+        String authorityName = "GROUP_site_" + siteName + "_" + authorityType;
+        Set<String> groups = authorityService.getContainedAuthorities(AuthorityType.GROUP, authorityName, true);
+
+        //If there are no groups in this authority then return null
+        if(groups.isEmpty())
+            return null;
+
+        Element authorityElement = document.createElement("authority");
+        authorityElement.setAttribute("type", authorityType);
+
+        for (String group:groups) {
+            Element memberElement = document.createElement("memberGroup");
+            memberElement.setTextContent(group);
+            authorityElement.appendChild(memberElement);
+        }
+
+        return authorityElement;
     }
 }

@@ -28,6 +28,16 @@
         <property name="fileFolderService" ref="fileFolderService" />
     </bean>
 
+    <bean id="dk_magenta_behaviour_site_AddGroupsFromPreset"
+          class="dk.magenta.behaviour.site.AddGroupsFromPreset"
+          init-method="init">
+        <property name="nodeService" ref="NodeService"/>
+        <property name="siteService" ref="SiteService"/>
+        <property name="policyComponent" ref="policyComponent"/>
+        <property name="contentService" ref="ContentService"/>
+        <property name="authorityService" ref="AuthorityService"/>
+    </bean>
+
     <bean id="dk_magenta_scripts_nodeExt"
           class="dk.magenta.NodeExt">
         <property name="searchService" ref="searchService" />

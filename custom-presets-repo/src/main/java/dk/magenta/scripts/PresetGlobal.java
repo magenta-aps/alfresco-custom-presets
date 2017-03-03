@@ -1,5 +1,10 @@
 package dk.magenta.scripts;
 
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 
@@ -19,4 +24,9 @@ public interface PresetGlobal {
     String FOLDER_FOLDER_SETUPS_SMALL = FOLDER_FOLDER_SETUPS_NAME.toLowerCase().replace(" ", "");
     String FOLDER_FOLDER_SETUPS = "cm:" + FOLDER_FOLDER_SETUPS_SMALL;
     QName FOLDER_FOLDER_SETUPS_QNAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, FOLDER_FOLDER_SETUPS_SMALL);
+
+    String SITE_COLLABORATOR = "SiteCollaborator";
+    String SITE_CONSUMER = "SiteConsumer";
+    String SITE_CONTRIBUTOR = "SiteContributor";
+    String SITE_MANAGER = "SiteManager";
 }

@@ -37,6 +37,7 @@
 		<property name="contentService" ref="contentService" />
 		<property name="nodeService" ref="NodeService" />
 		<property name="fileFolderService" ref="fileFolderService" />
+		<property name="authorityService" ref="AuthorityService" />
 	</bean>
 
 	<bean id="webscript.dk.magenta.presets.preset.names.get"
