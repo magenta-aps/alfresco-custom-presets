@@ -10,10 +10,8 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
-import org.springframework.extensions.webscripts.Cache;
-import org.springframework.extensions.webscripts.DeclarativeWebScript;
-import org.springframework.extensions.webscripts.Status;
-import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.extensions.webscripts.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -228,16 +226,13 @@ public class PostPreset extends DeclarativeWebScript {
             transformer.transform(source, result);
             presetInputStream.close();
 
-        } catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
-            e.printStackTrace();
+            createDocumentLibraryTemplate(presetName, presetId, siteName);
+
+        } catch (Exception e) {
+            status.setCode(500);
+            status.setException(e);
         }
-
-        createDocumentLibraryTemplate(presetName, presetId, siteName);
-
-        // Respond with success
-        Map<String, Object> model = new HashMap<String, Object>();
-        model.put("Status", "Success");
-        return model;
+        return null;
     }
 
 

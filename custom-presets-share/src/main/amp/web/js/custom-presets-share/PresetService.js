@@ -26,16 +26,25 @@ define(["dojo/_base/declare",
                     url : AlfConstants.PROXY_URI + "custom-presets-repo/preset/" + payload.site + "/" + payload.presetName,
                     method: "POST",
                     site: payload.site,
-                    successCallback: this.onGenerate,
+                    successCallback: this.onSucces,
+                    failureCallback: this.onFailure,
                     callbackScope: this
                 });
             },
 
-            onGenerate: function custom_preset_share_PresetService__onGenerate(response, originalRequestConfig) {
+            onSucces: function custom_preset_share_PresetService__ononSucces(response, originalRequestConfig) {
                 // On success display success message
                 Alfresco.util.PopupManager.displayMessage(
                     {
                         text: this.message('generate-preset.generate-ok')
+                    });
+            },
+
+            onFailure: function custom_preset_share_PresetService__onFailure(response, originalRequestConfig) {
+                // On failure display error message
+                Alfresco.util.PopupManager.displayMessage(
+                    {
+                        text: this.message('generate-preset.generate-error')
                     });
             }
         });
