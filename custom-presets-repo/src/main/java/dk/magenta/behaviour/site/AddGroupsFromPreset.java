@@ -80,34 +80,38 @@ public class AddGroupsFromPreset implements NodeServicePolicies.OnCreateNodePoli
             String presetId = siteInfo.getSitePreset();
             String siteName = siteInfo.getShortName();
 
-            String query = QUERY_PATH + "/" + FOLDER_DATA_DICTIONARY + "/" + FOLDER_EXTENSION_PRESETS + "/" + "*\" AND title:\"" + presetId + "\"";
-            List<NodeRef> presetList = NodeExt.getNodesByQuery(query);
-            NodeRef presetNode = presetList.get(0);
-            ContentReader contentReader = contentService.getReader(presetNode, ContentModel.PROP_CONTENT);
-            InputStream componentsInputStream = contentReader.getContentInputStream();
 
-            // Read components xml file
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            try {
-                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                Document componentDoc = docBuilder.parse(componentsInputStream);
-                NodeList authoritesList = componentDoc.getElementsByTagName("authorities");
-                Element authoritesElement = (Element)authoritesList.item(0);
-                NodeList authorities = authoritesElement.getElementsByTagName("authority");
+            if (!presetId.equals("site-dashboard")) {
 
-                for (int i = 0; i < authorities.getLength(); i++) {
-                    Node authorityTypeNode = authorities.item(i).getAttributes().getNamedItem("type");
-                    String authorityType = authorityTypeNode.getNodeValue();
-                    String authorityName = "GROUP_site_" + siteName + "_" + authorityType;
-                    Element authorityElement = (Element)authorities.item(i);
-                    NodeList members = authorityElement.getElementsByTagName("memberGroup");
-                    for (int j = 0; j < members.getLength(); j++) {
-                        String groupName = members.item(j).getTextContent();
-                        authorityService.addAuthority(authorityName, groupName);
+                String query = QUERY_PATH + "/" + FOLDER_DATA_DICTIONARY + "/" + FOLDER_EXTENSION_PRESETS + "/" + "*\" AND title:\"" + presetId + "\"";
+                List<NodeRef> presetList = NodeExt.getNodesByQuery(query);
+                NodeRef presetNode = presetList.get(0);
+                ContentReader contentReader = contentService.getReader(presetNode, ContentModel.PROP_CONTENT);
+                InputStream componentsInputStream = contentReader.getContentInputStream();
+
+                // Read components xml file
+                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                try {
+                    DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+                    Document componentDoc = docBuilder.parse(componentsInputStream);
+                    NodeList authoritesList = componentDoc.getElementsByTagName("authorities");
+                    Element authoritesElement = (Element) authoritesList.item(0);
+                    NodeList authorities = authoritesElement.getElementsByTagName("authority");
+
+                    for (int i = 0; i < authorities.getLength(); i++) {
+                        Node authorityTypeNode = authorities.item(i).getAttributes().getNamedItem("type");
+                        String authorityType = authorityTypeNode.getNodeValue();
+                        String authorityName = "GROUP_site_" + siteName + "_" + authorityType;
+                        Element authorityElement = (Element) authorities.item(i);
+                        NodeList members = authorityElement.getElementsByTagName("memberGroup");
+                        for (int j = 0; j < members.getLength(); j++) {
+                            String groupName = members.item(j).getTextContent();
+                            authorityService.addAuthority(authorityName, groupName);
+                        }
                     }
+                } catch (ParserConfigurationException | SAXException | IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                e.printStackTrace();
             }
         }
     }
