@@ -21,6 +21,8 @@
         For more available properties see the alfresco-sdk-parent POM.
        -->
     <properties>
+        <alfresco.version>5.2.e</alfresco.version>
+
         <!-- The following are default values for data location and Alfresco version.
              Uncomment if you need to change
         <alfresco.version>${alfresco.community.default.version}</alfresco.version> -->
@@ -60,7 +62,9 @@
                 <version>${alfresco.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
+        </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -73,11 +77,15 @@
             <classifier>classes</classifier>
             <scope>provided</scope>
         </dependency>
+
+
         <dependency>
-            <groupId>org.springframework.extensions.surf</groupId>
+            <groupId>org.alfresco.surf</groupId>
             <artifactId>spring-surf-api</artifactId>
             <scope>provided</scope>
         </dependency>
+
+
     </dependencies>
 
     <build>

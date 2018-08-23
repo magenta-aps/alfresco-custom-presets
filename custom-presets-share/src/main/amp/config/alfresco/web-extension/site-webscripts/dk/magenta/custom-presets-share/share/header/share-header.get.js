@@ -41,3 +41,37 @@ if (siteDropDown == null) {
         }
     }
 }
+
+// Make PresetsManager reload its presets
+reloadPresets.reload();
+
+
+
+var siteService = widgetUtils.findObject(model.jsonModel, "id", "SITE_SERVICE");
+if (siteService && siteService.config)
+{
+    reloadPresets.reload();
+
+    siteService.config.additionalSitePresets = new Array();
+
+// Get list of preset names
+    var connector = remote.connect("alfresco");
+    var result = connector.get("/custom-presets-repo/preset/names");
+    if (result.status == 200)
+    {
+        var names = (String)(result).split('\n');
+
+        // Add all custom presets to the list of presets in Share
+        for (var i = 0; i < names.length; i++) {
+            if (names[i] == "")
+                break;
+            var name = names[i].replace(".xml", "");
+            var id = name.toLowerCase().split(' ').join('-');
+            siteService.config.additionalSitePresets.push({
+                label: id,
+                value: name
+            });
+        }
+    }
+
+}
